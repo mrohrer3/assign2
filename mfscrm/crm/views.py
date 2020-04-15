@@ -6,6 +6,22 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.db.models import Sum
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import CustomerSerializer
+
+
+# List at the end of the views.py
+# Lists all customers
+class CustomerList(APIView):
+
+    def get(self, request):
+        customers_json = Customer.objects.all()
+        serializer = CustomerSerializer(customers_json, many=True)
+        return Response(serializer.data)
+
+
 now = timezone.now()
 
 
@@ -152,8 +168,7 @@ def summary(request, pk):
     sum_service_charge = Service.objects.filter(cust_name=pk).aggregate(Sum('service_charge'))
     sum_product_charge = Product.objects.filter(cust_name=pk).aggregate(Sum('charge'))
     return render(request, 'crm/summary.html', {'customers': customers,
-                                                    'products': products,
-                                                    'services': services,
-                                                    'sum_service_charge': sum_service_charge,
-                                                    'sum_product_charge': sum_product_charge,})
-
+                                                'products': products,
+                                                'services': services,
+                                                'sum_service_charge': sum_service_charge,
+                                                'sum_product_charge': sum_product_charge, })
